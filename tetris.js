@@ -27,8 +27,8 @@ var shape = [	//TShape index:0-3
 			];
 			
 var current_element = {
-	shape_index: 18,
-	coordinate: [0,0]
+	shape_index: 0,
+	coordinate: [0,-1]
 }			
 			
 var c=document.getElementById("myCanvas");
@@ -36,14 +36,46 @@ var cxt=c.getContext("2d");
 
 function fillElement(index, coordinate){
 	for (var i = 0; i<shape[index].length;i++){
-		cxt.fillStyle="#FF0000";
+		cxt.fillStyle="#99FF66";
 		cxt.fillRect((coordinate[0]+shape[index][i][0])*20,(coordinate[1]+shape[index][i][1])*20,18,18);
 	}
 }
 
 function clearElement(index, coordinate){
 	for (var i = 0; i<shape[index].length;i++){
-		cxt.clearRect((coordinate[0]+shape[index][i][0])*20,(coordinate[1]+shape[index][i][1])*20,18,18);
+		cxt.fillStyle="#666666";
+		cxt.fillRect((coordinate[0]+shape[index][i][0])*20,(coordinate[1]+shape[index][i][1])*20,18,18);
+	}
+}
+
+function mmMatrix(m, mm, xy){
+	if(xy == "x" && mm == "min"){
+		var min_x = 4; //4 is larger than any coordinate number in a shape
+		for (var i = 0; i < m.length; i++)
+			if (m[i][0] < min_x)
+				min_x = m[i][0];
+		return min_x;
+	}
+	else if (xy == "x" && mm == "max"){
+		var max_x = -1;//-1 is larger than any coordinate number in a shape
+		for (var i = 0; i < m.length; i++)
+			if (m[i][0] > max_x)
+				max_x = m[i][0];
+		return max_x;
+	}
+	else if (xy == "y" && mm == "min"){
+		var min_y = 4;
+		for (var i = 0; i < m.length; i++)
+			if (m[i][1] < min_y)
+				min_y = m[i][1];
+		return min_y;
+	}
+	else if (xy == "y" && mm == "max"){
+		var max_y = -1;
+		for (var i = 0; i < m.length; i++)
+			if (m[i][1] > max_y)
+				max_y = m[i][1];
+		return max_y;
 	}
 }
 
@@ -61,8 +93,14 @@ function changeCurrentElement(keycode){
 			}
 		}
 	}
-	else if(keycode == 40){
+	else if(keycode == 40 && mmMatrix(shape[current_element.shape_index], 'max', 'y') + current_element.coordinate[1] + 1 < c.height/20){
 		current_element.coordinate[1] = current_element.coordinate[1] + 1;
+	}
+	else if(keycode == 37 && mmMatrix(shape[current_element.shape_index], 'min', 'x') + current_element.coordinate[0] - 1 >= 0){	//left move
+		current_element.coordinate[0] = current_element.coordinate[0] - 1;
+	}
+	else if(keycode == 39 && mmMatrix(shape[current_element.shape_index], 'max', 'x') + current_element.coordinate[0] + 1 < c.width/20 ){	//right move	
+		current_element.coordinate[0] = current_element.coordinate[0] + 1;
 	}
 }
 
@@ -74,7 +112,14 @@ function changeCurrentElement(keycode){
 */
 
 $(document).ready(function(event){
+	document.body.style.overflow="hidden"; //锁定滚动条
+	cxt.fillStyle="#666666";
+	cxt.fillRect(0,0,c.width,c.height);
+		
 	fillElement(current_element.shape_index, current_element.coordinate);
+	setInterval("clearElement(current_element.shape_index, current_element.coordinate)", 1000);
+	setInterval("changeCurrentElement(40)", 1000);
+	setInterval("fillElement(current_element.shape_index, current_element.coordinate)", 1000);
 });
 
 $(document).keydown(function(event){ 
