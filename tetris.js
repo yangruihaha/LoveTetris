@@ -34,19 +34,22 @@ var current_element = {
 var c=document.getElementById("myCanvas");
 var cxt=c.getContext("2d");
 
-function fillElement(index, coordinate){
+function fillElement(index, coordinate, color){
 	for (var i = 0; i<shape[index].length;i++){
-		cxt.fillStyle="#99FF66";
+		//cxt.fillStyle="#99FF66";
+		cxt.fillStyle=color;
 		cxt.fillRect((coordinate[0]+shape[index][i][0])*20,(coordinate[1]+shape[index][i][1])*20,18,18);
 	}
 }
 
+/*
 function clearElement(index, coordinate){
 	for (var i = 0; i<shape[index].length;i++){
 		cxt.fillStyle="#666666";
 		cxt.fillRect((coordinate[0]+shape[index][i][0])*20,(coordinate[1]+shape[index][i][1])*20,18,18);
 	}
 }
+*/
 
 function mmMatrix(m, mm, xy){
 	if(xy == "x" && mm == "min"){
@@ -102,6 +105,10 @@ function changeCurrentElement(keycode){
 	else if(keycode == 39 && mmMatrix(shape[current_element.shape_index], 'max', 'x') + current_element.coordinate[0] + 1 < c.width/20 ){	//right move	
 		current_element.coordinate[0] = current_element.coordinate[0] + 1;
 	}
+	else if(mmMatrix(shape[current_element.shape_index], 'max', 'y') + current_element.coordinate[1] >= c.height/20 - 1){
+		current_element.coordinate[0] = 0;
+		current_element.coordinate[1] = -1;
+	}
 }
 
 /***
@@ -117,13 +124,13 @@ $(document).ready(function(event){
 	cxt.fillRect(0,0,c.width,c.height);
 		
 	fillElement(current_element.shape_index, current_element.coordinate);
-	setInterval("clearElement(current_element.shape_index, current_element.coordinate)", 1000);
+	setInterval("fillElement(current_element.shape_index, current_element.coordinate,'#666666')", 1000);
 	setInterval("changeCurrentElement(40)", 1000);
-	setInterval("fillElement(current_element.shape_index, current_element.coordinate)", 1000);
+	setInterval("fillElement(current_element.shape_index, current_element.coordinate,'#99FF66')", 1000);
 });
 
 $(document).keydown(function(event){ 
-    clearElement(current_element.shape_index, current_element.coordinate);
+    fillElement(current_element.shape_index, current_element.coordinate,'#666666');
 	changeCurrentElement(event.keyCode);
-	fillElement(current_element.shape_index, current_element.coordinate);
+	fillElement(current_element.shape_index, current_element.coordinate,'#99FF66');
 });
