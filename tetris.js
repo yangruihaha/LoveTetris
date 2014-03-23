@@ -27,7 +27,7 @@ var shape = [	//TShape index:0-3
 			];
 			
 var current_element = {
-	shape_index: 4,
+	shape_index: Math.round(18*Math.random()),
 	coordinate: [0,-1]
 }		
 			
@@ -114,6 +114,11 @@ function collisionCheck(index, coordinate, direct){
 				return true;
 			}
 		}
+		else if(direct == "shape_change"){
+			if(occupancy[coordinate[0]+shape[index][i][0]][coordinate[1]+shape[index][i][1]] == 1){
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -160,12 +165,10 @@ function erase(){
 }
 
 function allCheck(index, coordinate){
-	return	mmMatrix(shape[index], 'max', 'y') + coordinate[1] + 1 < c.height/20 &&
-			//!collisionCheck(index, coordinate, 'down') &&
-			mmMatrix(shape[index], 'min', 'x') + coordinate[0] - 1 >= 0 &&
-			//!collisionCheck(index, coordinate, 'left') &&
-			mmMatrix(shape[index], 'max', 'x') + coordinate[0] + 1 < c.width/20;
-			//!collisionCheck(index, coordinate, 'right');
+	return	mmMatrix(shape[index], 'max', 'y') + coordinate[1] < c.height/20 &&
+			mmMatrix(shape[index], 'min', 'x') + coordinate[0] >= 0 &&
+			mmMatrix(shape[index], 'max', 'x') + coordinate[0] < c.width/20 &&
+			!collisionCheck(index, coordinate, 'shape_change');
 }
 
 
@@ -173,19 +176,23 @@ function changeCurrentElement(keycode){
 	if (keycode == 38){
 		if(current_element.shape_index >=0 && current_element.shape_index <=11){
 			//current_element.shape_index = Math.floor(current_element.shape_index/4)*4 + (current_element.shape_index+1)%4;
-			temp_index = current_element.shape_index = Math.floor(current_element.shape_index/4)*4 + (current_element.shape_index+1)%4;
-			console.log(temp_index);
+			temp_index = Math.floor(current_element.shape_index/4)*4 + (current_element.shape_index+1)%4;
 			if(allCheck(temp_index, current_element.coordinate)){
-
 				current_element.shape_index = temp_index;
 			}
 		}
 		else if(current_element.shape_index >=12 && current_element.shape_index <=17){
 			if(current_element.shape_index % 2 ==0){
-				current_element.shape_index = current_element.shape_index + 1;
+				temp_index = current_element.shape_index + 1;
+				if(allCheck(temp_index, current_element.coordinate)){
+					current_element.shape_index = temp_index;
+				}
 			}
 			else{
-				current_element.shape_index = current_element.shape_index - 1;
+				temp_index = current_element.shape_index - 1;
+				if(allCheck(temp_index, current_element.coordinate)){
+					current_element.shape_index = temp_index;
+				}
 			}
 		}
 	}
@@ -206,6 +213,7 @@ function changeCurrentElement(keycode){
 		fillOccupancy(current_element.shape_index, current_element.coordinate,'#868866');
 		erase();
 
+		current_element.shape_index = Math.round(18*Math.random());
 		current_element.coordinate[0] = 0;
 		current_element.coordinate[1] = -1;
 	}
